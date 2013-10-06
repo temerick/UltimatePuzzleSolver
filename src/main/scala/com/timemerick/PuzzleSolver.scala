@@ -66,7 +66,7 @@ object RectangleStreamBuilder {
       case _ =>
         // This doesn't make any sense.
         val toAttach = acc.head
-        buildStreams0(streamCount, attachStreams(toAttach,toAttach)(am) +: acc, am)
+        buildStreams0(streamCount, attachStreams(toAttach)(am) +: acc, am)
   }
 
   private def attachStreamsRL(a: Stream[Rectangular], b: Stream[Rectangular]): Stream[Rectangular] = attachStreams(a,b)(RightToLeft)
