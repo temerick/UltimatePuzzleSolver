@@ -74,6 +74,9 @@ object RectangleStreamBuilder {
   private def attachStreams(a: Stream[Rectangular], b: Stream[Rectangular]): AttachmentMethod => Stream[Rectangular] = {
     am => (for { x<-a; y<-b; if (x.usedSquares.ids intersect y.usedSquares.ids).isEmpty } yield x.attach(y,am)).flatten
   }
+  private def attachStreams(a: Stream[Rectangular]): AttachmentMethod => Stream[Rectangular] = {
+    am => (for { x<-a; y<-a; if (x.usedSquares.ids intersect y.usedSquares.ids).isEmpty } yield x.attach(y,am)).flatten
+  }
 
   private def binaryExpansion(x: Int): Seq[Int] = Integer.toBinaryString(x).split("").tail.map(_.toInt)
 }
