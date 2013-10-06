@@ -6,21 +6,24 @@ package com.timemerick
  * Time: 1:14 PM
  */
 sealed trait Shape {
-  val vec: Seq[Int]
-  def fitsWith(that: Shape): Boolean = {
-    val n = Math.max(vec.length,that.vec.length)-1
-    (0 to n) forall (i => vec(i)+that.vec(i) == 0)
-  }
+  val id: Int
+  def fitsWith(that: Shape): Boolean = id + that.id == 0
 
   override def equals(obj: Any): Boolean = obj match {
-    case that: Shape => vec equals that.vec
+    case that: Shape => id equals that.id
     case _ => false
   }
-  override def hashCode(): Int = (0 to vec.length-1).map(i => Math.pow(2,i) * vec(i)).sum.toInt
+  override def hashCode(): Int = id.hashCode()
+  override def toString = {
+    if(id >= 0) "+"+id.toString
+    else id.toString
+  }
 }
-object OutTriangle extends Shape { val vec = Seq(1) }
-object OutTriangleInverse extends Shape { val vec = Seq(-1) }
-object InTriangle extends Shape { val vec = Seq(0,1) }
-object InTriangleInverse extends Shape { val vec = Seq(0,-1) }
-object Oval extends Shape { val vec = Seq(0,0,1) }
-object OvalInverse extends Shape { val vec = Seq(0,0,-1) }
+object OutTriangle extends Shape { val id = 1 }
+object OutTriangleInverse extends Shape { val id = -1 }
+object InTriangle extends Shape { val id = 2 }
+object InTriangleInverse extends Shape { val id = -2 }
+object Oval extends Shape { val id = 3 }
+object OvalInverse extends Shape { val id = -3 }
+object Plus extends Shape { val id = 4 }
+object PlusInverse extends Shape { val id = -4 }
