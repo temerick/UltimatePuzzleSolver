@@ -9,8 +9,9 @@ object PuzzleSolver {
   def main(args: Array[String]) {
     val mySquares = SquareCollectionReader.getCollectionFromFile("/starting_squares.txt")
     val x = System.nanoTime
-    val allRectangles = RectangleStreamBuilder.getRectangles(4,1,mySquares)
+    val allRectangles = RectangleStreamBuilder.getRectangles(2,1,mySquares)
     println("Length: "+allRectangles.toSet.size)
+    allRectangles foreach println
     // println("RESULT: ")
     // println(allRectangles.head)
     println(((System.nanoTime - x)*1.0E-9) + " seconds elapsed.")
@@ -28,19 +29,19 @@ object RectangleStreamBuilder {
       //println("x divisions: "+divisions)
       val toPieceTogether = getRectangles(1,m,sc)
       //println("To Piece Together: \n"+toPieceTogether.head)
-      val allStreams = buildStreams(divisions.length,toPieceTogether,RightToLeft)
+      val allStreams = buildStreams(divisions.length,toPieceTogether,TopToBottom)
       val streams = for { i <- 0 to (divisions.length-1); if divisions(i) == 1 } yield allStreams(i)
-      streams.tail.foldLeft(streams.head)(attachStreamsRL)
+      streams.tail.foldLeft(streams.head)(attachStreamsTB)
     case (_,y) if y > 1 =>
       val divisions = binaryExpansion(m)
       //println("y divisions: "+divisions)
-      val allStreams = buildStreams(divisions.length,sc,TopToBottom)
+      val allStreams = buildStreams(divisions.length,sc,RightToLeft)
       //println("y allstreams length: "+allStreams.length)
       val streams = for { i <- 0 to (divisions.length-1); if divisions(i) == 1 } yield allStreams(i)
       //println("y streams length: "+streams.length)
       //println("-=-=-=-=-=-=-=-=\n"+streams.head.head+"\n-=-=-=-=-=-=-=-=-=-=-=-")
       // streams foreach (x => println("==========\n"+x.head))
-      streams.tail.foldLeft(streams.head)(attachStreamsTB)
+      streams.tail.foldLeft(streams.head)(attachStreamsRL)
     case _ => throw new Exception("Improper input. n and m must both be positive integers.")
   }
 

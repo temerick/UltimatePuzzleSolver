@@ -18,8 +18,9 @@ object SquareCollectionReader {
     InTriangleInverse, Oval, OvalInverse, Plus, PlusInverse)
   def getCollectionFromFile(filename: String): SquareCollection = {
     val lines = io.Source.fromInputStream(this.getClass.getResourceAsStream(filename)).getLines()
-    val readSquares = lines.map(_.split(",")
-      .map(i => shapes.filter(_.id == i.toInt).head))
+    val readSquares = lines.toSeq
+      .filterNot(_.startsWith("#"))
+      .map(_.split(",").map(i => shapes.filter(_.id == i.toInt).head))
       .zipWithIndex
       .map(x => new SingleSquare(x._1(0),x._1(1),x._1(2),x._1(3),x._2))
       .toStream
