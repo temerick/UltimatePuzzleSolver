@@ -9,7 +9,7 @@ object PuzzleSolver {
   def main(args: Array[String]) {
     val mySquares = SquareCollectionReader.getCollectionFromFile("/starting_squares.txt")
     val x = System.nanoTime
-    val allRectangles = RectangleStreamBuilder.getRectangles(4,2,mySquares)
+    val allRectangles = RectangleStreamBuilder.getRectangles(4,1,mySquares)
     println("Length: "+allRectangles.toSet.size)
     // println("RESULT: ")
     // println(allRectangles.head)
