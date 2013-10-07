@@ -102,10 +102,10 @@ case class Rectangle(up: Side, right: Side, down: Side,
                      left: Side, usedSquareLocations: Seq[((Int,Int),SingleSquare)]) extends Rectangular
 
 case class SingleSquare(upShape: Shape, rightShape: Shape, downShape: Shape, leftShape: Shape, id: Int) extends Rectangular with UID {
-  val up = SingleLengthSide(upShape)
-  val right = SingleLengthSide(rightShape)
-  val down = SingleLengthSide(downShape)
-  val left = SingleLengthSide(leftShape)
+  val up = Side(Array(upShape))
+  val right = Side(Array(rightShape))
+  val down = Side(Array(downShape))
+  val left = Side(Array(leftShape))
   val usedSquareLocations = Seq(((1,1),this))
 
   override def toString: String =

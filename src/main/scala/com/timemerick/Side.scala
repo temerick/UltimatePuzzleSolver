@@ -6,7 +6,7 @@ package com.timemerick
  * Time: 3:22 PM
  */
 
-class Side(val shapes: Array[Shape]) {
+case class Side(shapes: Array[Shape]) {
   // Listing is always in clockwise order.
 
   def ++(that: Side): Side = {
@@ -32,5 +32,3 @@ class Side(val shapes: Array[Shape]) {
 
   override def hashCode(): Int = (0 to shapes.length-1).map(i => Math.pow(41,i) * shapes(i).hashCode()).sum.toInt
 }
-
-case class SingleLengthSide(s: Shape) extends Side(Array(s))

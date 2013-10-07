@@ -8,9 +8,12 @@ package com.timemerick
 object PuzzleSolver {
   def main(args: Array[String]) {
     val mySquares = SquareCollectionReader.getCollectionFromFile("/starting_squares.txt")
-    val allRectangles = RectangleStreamBuilder.getRectangles(4,3,mySquares)
-    println("RESULT: ")
-    println(allRectangles.head)
+    val x = System.nanoTime
+    val allRectangles = RectangleStreamBuilder.getRectangles(4,2,mySquares)
+    println("Length: "+allRectangles.toSet.size)
+    // println("RESULT: ")
+    // println(allRectangles.head)
+    println(((System.nanoTime - x)*1.0E-9) + " seconds elapsed.")
     // (0 to 100).foreach(i => { println("Rectangle #%s: \n==========".format(i));println(allRectangles(i)) } )
   }
 }
@@ -28,12 +31,6 @@ object RectangleStreamBuilder {
       val allStreams = buildStreams(divisions.length,toPieceTogether,RightToLeft)
       val streams = for { i <- 0 to (divisions.length-1); if divisions(i) == 1 } yield allStreams(i)
       streams.tail.foldLeft(streams.head)(attachStreamsRL)
-// PROBABLY SLOW.
-//      val nSplit: Int = x / 2
-//      (for {
-//        r1 <- getRectangles(nSplit,m,sc)
-//        r2 <- getRectangles(n-nSplit,m,sc-r1.usedSquares)
-//      } yield r1 attachAlongFullEdge r2).flatten
     case (_,y) if y > 1 =>
       val divisions = binaryExpansion(m)
       //println("y divisions: "+divisions)
@@ -44,13 +41,6 @@ object RectangleStreamBuilder {
       //println("-=-=-=-=-=-=-=-=\n"+streams.head.head+"\n-=-=-=-=-=-=-=-=-=-=-=-")
       // streams foreach (x => println("==========\n"+x.head))
       streams.tail.foldLeft(streams.head)(attachStreamsTB)
-
-// PROBABLY SLOW.
-//      val mSplit: Int = m / 2
-//      (for {
-//        r1 <- getRectangles(n,mSplit,sc)
-//        r2 <- getRectangles(n,m-mSplit,sc-r1.usedSquares)
-//      } yield r1 attachAlongFullEdge r2).flatten
     case _ => throw new Exception("Improper input. n and m must both be positive integers.")
   }
 
@@ -72,7 +62,7 @@ object RectangleStreamBuilder {
   private def attachStreamsRL(a: Stream[Rectangular], b: Stream[Rectangular]): Stream[Rectangular] = attachStreams(a,b)(RightToLeft)
   private def attachStreamsTB(a: Stream[Rectangular], b: Stream[Rectangular]): Stream[Rectangular] = attachStreams(a,b)(TopToBottom)
   private def attachStreams(a: Stream[Rectangular], b: Stream[Rectangular]): AttachmentMethod => Stream[Rectangular] = {
-    am => (for { x<-a; y<-b; if (x.usedSquares.ids intersect y.usedSquares.ids).isEmpty } yield x.attach(y,am)).flatten
+    am => (for { x<-a.toIterator; y<-b; if (x.usedSquares.ids intersect y.usedSquares.ids).isEmpty } yield x.attach(y,am)).flatten.toStream
   }
   private def attachStreams(a: Stream[Rectangular]): AttachmentMethod => Stream[Rectangular] = {
     am => (for { x<-a; y<-a; if (x.usedSquares.ids intersect y.usedSquares.ids).isEmpty } yield x.attach(y,am)).flatten
