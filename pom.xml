@@ -29,7 +29,7 @@
                     <binFileExtensions>
                         <unix>.sh</unix>
                     </binFileExtensions>
-                    <assembleDirectory>target/gorgon-qa</assembleDirectory>
+                    <assembleDirectory>target/puzzle-solver</assembleDirectory>
                     <extraJvmArguments>-Djava.library.path=${library.path}:/usr/local/lib</extraJvmArguments>
                     <platforms>
                         <platform>unix</platform>
