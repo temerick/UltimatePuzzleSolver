@@ -7,6 +7,9 @@
     <groupId>com.timemerick</groupId>
     <artifactId>PuzzleSolver</artifactId>
     <version>1.0</version>
+    <properties>
+        <library.path>/usr/local/lib</library.path>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -16,5 +19,34 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>1.3.1</version>
+                <configuration>
+                    <binFileExtensions>
+                        <unix>.sh</unix>
+                    </binFileExtensions>
+                    <assembleDirectory>target/gorgon-qa</assembleDirectory>
+                    <extraJvmArguments>-Djava.library.path=${library.path}:/usr/local/lib</extraJvmArguments>
+                    <platforms>
+                        <platform>unix</platform>
+                    </platforms>
+                    <programs>
+                        <program>
+                            <mainClass>com.timemerick.RectCounter</mainClass>
+                            <name>RectCounter</name>
+                        </program>
+                        <program>
+                            <mainClass>com.timemerick.PuzzleSolver</mainClass>
+                            <name>PuzzleSolver</name>
+                        </program>
+                    </programs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     
 </project>
