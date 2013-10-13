@@ -13,6 +13,10 @@ trait Rectangular extends UsedSquares {
 
   private val attachmentMethods: Stream[AttachmentMethod] = Stream(RightToLeft,LeftToRight,TopToBottom,BottomToTop)
 
+  def sum: Int = up.sum+right.sum+down.sum+left.sum
+
+  def sumSides: Set[Int] = Set(up.sum,right.sum,down.sum,left.sum)
+
   def rotateRight: Rectangular = {
     val max = usedSquareLocations.map(_._1._1).max
     val rightRotate: PartialFunction[(Int,Int),(Int,Int)] = {case (i: Int,j: Int) => (j,max-i+1)}
@@ -35,6 +39,11 @@ trait Rectangular extends UsedSquares {
   }
 
 
+  def allDimensionPreservingSymmetries: Set[Rectangular] = allSymmetries.filter(_.dimensions._1 == this.dimensions._1)
+
+  def allDimensionPreservingSymmetriesAsStream: Stream[Rectangular] =
+    allSymmetriesAsStream.filter(_.dimensions._1 == this.dimensions._1)
+
   def allFlips: Set[Rectangular] = flipDiagonally.allRotations
 
   def allFlipsAsStream: Stream[Rectangular] = flipDiagonally.allRotationsAsStream
@@ -46,6 +55,22 @@ trait Rectangular extends UsedSquares {
   def attachAlongFullEdge(that: Rectangular): Stream[Rectangular] = that.allSymmetriesAsStream flatMap attach
 
   def attach(that: Rectangular): Stream[Rectangular] = attachmentMethods flatMap (attach(that,_))
+
+  def attachAboveDimensionMatching(that: Rectangular): Stream[Rectangular] = {
+    attachDimensionMatching(that,TopToBottom)
+  }
+  def attachAlongsideDimensionMatching(that: Rectangular): Stream[Rectangular] = {
+    attachDimensionMatching(that,RightToLeft)
+  }
+
+  def attachDimensionMatching(that: Rectangular, am: AttachmentMethod): Stream[Rectangular] = {
+    if((this.usedSquares.ids intersect that.usedSquares.ids).isEmpty)
+      (for {
+        a <- allDimensionPreservingSymmetriesAsStream
+        b <- that.allDimensionPreservingSymmetriesAsStream
+      } yield a.attach(b,am)).flatten
+    else Stream()
+  }
 
   def attach(that: Rectangular, strategy: AttachmentMethod): Option[Rectangular] = strategy match {
     case RightToLeft =>
@@ -66,11 +91,12 @@ trait Rectangular extends UsedSquares {
   }
 
   override def equals(obj: Any): Boolean = obj match {
-    case that: Rectangle =>
+    case that: Rectangular =>
       (up equals that.up) &&
         (right equals that.right) &&
         (down equals that.down) &&
-        (left equals that.left)
+        (left equals that.left) &&
+        (usedSquares.ids equals that.usedSquares.ids)
     case _ => false
   }
 
@@ -97,7 +123,6 @@ trait Rectangular extends UsedSquares {
   }
 }
 
-
 case class Rectangle(up: Side, right: Side, down: Side,
                      left: Side, usedSquareLocations: Seq[((Int,Int),SingleSquare)]) extends Rectangular
 
@@ -114,10 +139,10 @@ case class SingleSquare(upShape: Shape, rightShape: Shape, downShape: Shape, lef
 
   private def idString: String = if(id < 10) "0"+id else id.toString
 
-  override def equals(obj: Any): Boolean = obj match {
-    case that: SingleSquare => super.equals(that) && id == that.id
-    case _ => false
-  }
+//  override def equals(obj: Any): Boolean = obj match {
+//    case that: SingleSquare => super.equals(that)
+//    case _ => false
+//  }
 
   override def rotateRight: SingleSquare = SingleSquare(leftShape,upShape,rightShape,downShape,id)
 
@@ -135,4 +160,11 @@ trait UsedSquares {
   def usedSquares: SquareCollection = SquareCollection(usedSquareLocations.map(_._2).toStream)
   def shiftSquares(f: PartialFunction[(Int,Int),(Int,Int)],squares: Seq[((Int,Int),SingleSquare)]= usedSquareLocations):
     Seq[((Int,Int),SingleSquare)] = squares.map(x => (f(x._1),x._2))
+
+  def dimensions: (Int,Int) = {
+    val xs = usedSquareLocations.map(_._1._1)
+    val ys = usedSquareLocations.map(_._1._2)
+    if (xs.isEmpty) (1,1)
+    else (xs.max,ys.max)
+  }
 }

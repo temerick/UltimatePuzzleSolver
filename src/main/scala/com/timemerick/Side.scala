@@ -23,10 +23,14 @@ case class Side(shapes: Array[Shape]) {
     (n == that.shapes.length-1) && ((0 to n) forall (i => shapes(i) fitsWith that.shapes(n-i)))
   }
 
+  def sum: Int = shapes.map(_.id).sum
+
   override def toString: String = "Side(%s)".format(shapes.map(_.id).mkString(", "))
 
   override def equals(obj: Any): Boolean = obj match {
-    case that: Side => this.shapes equals that.shapes
+    case that: Side =>
+      val n = shapes.length
+      n == that.shapes.length && (0 to n-1).forall(i => shapes(i) == that.shapes(i))
     case _ => false
   }
 

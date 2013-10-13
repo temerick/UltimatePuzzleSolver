@@ -39,4 +39,15 @@ class RectangleTest {
     //((x attachAlongFullEdge y) flatMap (_ attachAlongFullEdge y)) foreach (x => { println("==========");println(x) })
   }
 
+  @Test
+  def testAttachAbove() {
+    Assert.assertEquals(8,(x attachAboveDimensionMatching y).length)
+    // (x attachAboveDimensionMatching y).foreach(a => { println("==============="); println(a) })
+  }
+
+  @Test
+  def equalityTest()  {
+    Assert.assertTrue(Set(x.rotateRight.rotateRight.rotateRight.rotateRight) contains x)
+  }
+
 }

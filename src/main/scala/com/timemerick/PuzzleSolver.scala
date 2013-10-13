@@ -71,3 +71,78 @@ object RectangleStreamBuilder {
 
   private def binaryExpansion(x: Int): Seq[Int] = Integer.toBinaryString(x).split("").tail.map(_.toInt)
 }
+
+object RectCounter {
+  def main(args: Array[String]) {
+    val mySquares = SquareCollectionReader.getCollectionFromFile("/starting_squares.txt").squares
+    val time0 = System.nanoTime
+    val allPairs = (for {
+      x <- mySquares
+      y <- mySquares
+      if y.id != x.id
+    } yield x attachAboveDimensionMatching y).flatten.distinct
+    val uniquePairs = unique(allPairs)
+    val time1 = System.nanoTime
+    println("There are %s unique pairs.".format(uniquePairs.size))
+    println("Time: "+(time1-time0)*1.0E-9)
+//    val squareStream = adjoinVia(adjoinVia(adjoinVia(uniquePairs.toStream,RightToLeft),RightToLeft),TopToBottom)
+//    println(squareStream.head)
+//    val time2 = System.nanoTime
+//    println("Time: "+(time2-time1)*1.0E-9)
+//    println("Total time: "+(time2-time0)*1.0E-9)
+    val allColumns = (for {
+      x <- allPairs
+      y <- allPairs
+      if (y.usedSquares.ids intersect x.usedSquares.ids).isEmpty
+    } yield x attachAboveDimensionMatching y).flatten.distinct
+    val uniqueColumns = unique(allColumns)
+    val time2 = System.nanoTime
+    println("There are %s unique 4x1 rectangles.".format(uniqueColumns.size))
+    println("Time: "+(time2-time1)*1.0E-9)
+  }
+
+  def adjoinVia(stream: Stream[Rectangular], attachmentMethod: AttachmentMethod): Stream[Rectangular] = {
+    (for {
+      x <- stream
+      y <- stream
+      if (x.usedSquares.ids intersect y.usedSquares.ids).isEmpty
+    } yield x.attachDimensionMatching(y,attachmentMethod)).flatten.distinct
+  }
+
+  def unique(squares: Stream[Rectangular]): Set[Rectangular] = {
+    unique(squares,Map(),0)
+  }
+  def unique(squares: Stream[Rectangular], acc: Map[(Int,Set[Int]),Set[Rectangular]],i: Int): Set[Rectangular] = {
+    if(squares.isEmpty) acc.flatMap(_._2).toSet
+    else {
+      if(i % 1000 == 0) { println("Currently gone through %s elements of the stream".format(i)) }
+      if(i % 10000 == 0) {println("There are %s unique elements.".format(acc.flatMap(_._2).toSet.size))}
+//      if(acc.size % 1000 == 0) {
+//        val dims = squares.head.dimensions
+//        println("Acc length for %s x %s: %s".format(dims._1,dims._2,acc.size))
+//      }
+      val head = squares.head
+      val key = (head.sum,head.sumSides)
+      if(!acc.isDefinedAt(key)) unique(squares.tail,acc.updated(key,Set(head)),i+1)
+      else if(acc(key).intersect(head.allDimensionPreservingSymmetries).isEmpty) unique(squares.tail,acc.updated(key,acc(key) + head),i+1)
+      else unique(squares.tail,acc,i+1)
+    }
+  }
+}
+
+object OutsideDeterminer {
+  def main(args: Array[String]) {
+    getTotalsFromFile("/starting_squares.txt").foreach(println)
+  }
+
+  def getTotalsFromFile(filename: String): Seq[(Int,Int)] = {
+    val lines = io.Source.fromInputStream(this.getClass.getResourceAsStream(filename)).getLines()
+    lines.toSeq
+      .filterNot(_.startsWith("#"))
+      .flatMap(_.split(",").map(_.toInt))
+      .groupBy(Math.abs)
+      .map(x => (x._1,x._2.sum))
+      .toSeq
+  }
+
+}
